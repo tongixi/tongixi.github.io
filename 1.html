@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <!-- 配置字符编码 -->
+    <meta charset="UTF-8">
+    <!-- 针对IE浏览器的一个兼容设置 -->
+    <meta http-equiv="X-UA-Compatible" content="IE-edga">
+    <!-- 针对移动端的一个设置 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 配置网页搜索引擎的关键字 -->
+    <meta name="keywords" content="考研，考研数据帝，考研调剂，考研择校，考研数据">
+    <!-- 配置网页的描述信息 -->
+    <meta name="description" content="考研数据帝致力于考研调剂和考研择校领域的专家">
+    <!-- 网页昵称 -->
+    <title>考研数据帝网页测试</title>
+
+    <style>
+        /* 清空默认样式 */
+        * {
+            margin: 0%;
+            padding: 0%;
+        }
+
+        /* 左浮动 */
+        .leftfix {
+            float: left;
+        }
+
+        /* 右浮动 */
+        .rightfix {
+            float: right;
+        }
+
+        /* 清除浮动 */
+        .clearfix::after {
+            content: '';
+            display: block;
+            clear: both;
+        }
+
+
+        img {
+            display: block;
+        }
+
+        /* 紧凑风格，一般用于项目上线后减少体积 */
+        /* img{display: block;} */
+
+        .button {
+            /* 背景色 */
+            background: #FDE9D0;
+            /* 字体颜色 */
+            color: #F59C26;
+            /* 边框圆角 */
+            border-radius: 20px;
+            /* 内边距  上 右 下 左  四个参数   5px就等于是 上下 都是5px  左右是30px 2个参数的情况   3情况  */
+            padding: 5px 30px;
+            /* 边框  3个参数  第一个1px  边框 宽度是1px   solid 这边样式  solid实线  虚线  */
+            border: 1px solid #F59E2D;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .search-section {
+            /* 最小宽度 */
+            /* max-width: ; */
+            min-width: 1500px;
+            /* flex布局 移动端的 手机 */
+            display: flex;
+            /* X轴操作 */
+            justify-content: space-around;
+            /* Y轴操作 */
+            align-items: center;
+            /* 边框 */
+            border: 1px solid #ccc;
+            /* 内边距 */
+            padding: 10px;
+            /* 阴影 */
+            box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.34901960784313724);
+            /* float: left; 浮动  */
+        }
+
+        .bd {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff;
+        }
+
+        .container {
+            width: 80%;
+            margin: 20px auto;
+
+        }
+
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+
+        }
+
+        .card form {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .tab:hover {
+            background-color: #f0f0f0;
+        }
+
+        .tab.active {
+            border-bottom: 3px solid #f90;
+            font-weight: bold;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            width: 120px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group select,
+        .form-group input {
+            flex: 1;
+            padding: 8px;
+            border: 0px solid #ddd;
+            background-color: #e8e8e8;
+            font-size: 14px;
+            width: 150px;
+        }
+
+        .form-group input {
+            width: 100%;
+        }
+
+        .search-btn {
+            text-align: right;
+            margin-top: 10px;
+        }
+
+        .search-btn button {
+            padding: 10px 20px;
+            background-color: rgba(255, 153, 0, 0.324);
+            border: 2px solid #f90;
+            color: #e07b00;
+            border-radius: 14px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .search-btn button:hover {
+            background-color: #e07b0017;
+        }
+
+        .compare-btn {
+            text-align: right;
+            margin-top: 20px;
+        }
+
+        .compare-btn button {
+            padding: 10px 30px;
+            background-color: #f90;
+            color: white;
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .compare-btn button:hover {
+            background-color: #e07b00;
+        }
+        .c_header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .c_logo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 15px;
+        }
+
+        .c_logo img {
+            width: 110%;
+            height: 100%;
+        }
+
+        .c_title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .c_subtitle {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .c_info {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+            gap: 10px;
+        }
+
+        .c_info span {
+            font-size: 14px;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .c_info .c_fulltime {
+            background: #fffbe6;
+            border: 0px solid #ddd;
+            color: #666;
+        }
+
+        .c_info .c_code {
+            background: #d4edff;
+            color: #0056b3;
+        }
+
+        .c_info .c_location {
+            background: #e6f8e0;
+            color: #008000;
+        }
+
+        .c_info .c_area {
+            background: #ffe6e6;
+            color: #cc0000;
+        }
+
+        .c_info .c_985 {
+            background: #fff2e8;
+            color: #666;
+        }
+
+        .c_info .c_hot {
+            background: #fff2e8;
+            font-size: 18px;
+        }
+
+        .c_details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .c_quota {
+            font-size: 14px;
+        }
+
+        .c_actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .c_button {
+            padding: 5px 15px;
+            font-size: 14px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .c_button.c_detail {
+            background: #ffd89b;
+            color: #b36b00;
+        }
+
+        .c_button.c_compare {
+            background: #ffa64d;
+            color: white;
+        }
+
+        .c_footer {
+            background: #fffbe6;
+            border: 0px solid #ddd;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #999;
+            text-align: right;
+            width: 200px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 第一行 -->
+
+    <!-- 1层 -->
+    <div style="height: 43px;">
+        <!-- 左div图片logo-->
+        <!-- 2层 -->
+        <div class="leftfix">
+            <!-- 2层 -->
+            <div class="leftfix">
+                <img width="82" height="43"
+                    src="https://files.axshare.com/gsc/8VLMST/c1/85/c6/c185c6be0ac243a2b2f7bafaf893e037/images/%E8%B0%83%E5%89%82%E4%BF%A1%E6%81%AF1-%E6%9C%AA%E8%A7%A3%E9%94%81/u4.png?pageId=91a94283-3fe8-4099-8a4e-71cace0854f6"
+                    alt="logo1">
+            </div>
+            <!-- 2层 -->
+            <div class="leftfix">
+                <img width="113" height="30" style="margin: 10px 0 0 -10px;"
+                    src="https://files.axshare.com/gsc/8VLMST/c1/85/c6/c185c6be0ac243a2b2f7bafaf893e037/images/%E8%B0%83%E5%89%82%E4%BF%A1%E6%81%AF1-%E6%9C%AA%E8%A7%A3%E9%94%81/u5.png?pageId=91a94283-3fe8-4099-8a4e-71cace0854f6"
+                    alt="logo2">
+            </div>
+        </div>
+
+        <!-- 3层 -->
+        <!-- 右div按钮 -->
+        <div class="rightfix">
+            <!-- 3层 -->
+            <div class="rightfix">
+                <button class="button" id="navbar">
+                    开通/兑换
+                </button>
+            </div>
+            <!-- 3层 -->
+            <div class="rightfix">
+                <button class="button">
+                    登录/注册
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- 第二行 -->
+    <div id="bd">
+        <div class="container">
+            <div class="tabs">
+                <div class="tab active">海量调剂信息</div>
+                <div class="tab">调剂去向查询</div>
+                <div class="tab">院校对比</div>
+                <div class="tab">调剂推荐定制</div>
+                <div class="tab">调剂上岸攻略</div>
+                <div class="tab">我的调剂中心</div>
+            </div>
+            <div class="card">
+                <form>
+                    <h3 style="width: 120px;">精准搜索 ></h3>
+                    <div class="form-group">
+                        <select id="school" required>
+                            <option value="">学校名称(必填*)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <select id="college">
+                            <option value="">学院名称</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <select id="college">
+                            <option value="">专业名称</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <select id="study-type">
+                            <option value="">学习方式</option>
+                        </select>
+                    </div>
+                    <div class="search-btn">
+                        <button type="submit">搜索</button>
+                    </div>
+
+                </form>
+            </div>
+            <br>
+            <div class="card">
+                <form>
+                    <h3 style="width: 120px;">高校筛选 ></h3>
+                    <div class="form-group">
+                        <input type="text" id="discipline" placeholder="请输入学科门类（必填*）" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="discipline" placeholder="培养方式" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="discipline" placeholder="院校层次" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="discipline" placeholder="公共课全国统一考试科目" required>
+                    </div>
+                </form>
+                <form>
+                    <h3 style="width: 120px;"></h3>
+                    <div class="form-group">
+                        <input type="text" id="discipline" placeholder="专业名称" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="discipline" placeholder="学习方式" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="discipline" placeholder="省份" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="discipline" placeholder="专业课全国统一考试科目" required>
+                    </div>
+                </form>
+            </div>
+
+            <div class="compare-btn">
+                <button type="button">0/5 开始对比</button>
+            </div>
+        </div>
+        <div class="container" >
+            <div class="card" style="display: flex;justify-content: space-between;">
+                <div class="c_logo">
+                    <img src="https://files.axshare.com/gsc/8VLMST/c1/85/c6/c185c6be0ac243a2b2f7bafaf893e037/images/调剂信息1-未解锁/u42.png?pageId=91a94283-3fe8-4099-8a4e-71cace0854f6" alt="清华大学">
+                </div>
+                <div>
+                    <div class="c_header">
+                        <div>
+                            <div class="c_title">清华大学 哲学 (010100)</div>
+                        </div>
+                        <div class="c_info" style="margin-left:30px ;">
+                            <span class="c_code">01哲学</span>
+                            <span class="c_location">北京</span>
+                            <span class="c_area">A区</span>
+                            <span class="c_985">985</span>
+                            <span class="c_hot">热度：🔥🔥🔥🔥</span>
+                        </div>
+                    </div>
+                    <div style="display: flex;">
+                        <p style="margin-top: 12px;margin-right: 20px;">人文学院</p>
+                        <div class="c_info">
+                            <span class="c_fulltime">全日制</span>
+                        </div>
+                    </div>
+                    <div class="c_info">
+                        <span class="c_fulltime" style="width: 120px;">名额：3人</span>
+                    </div>
+    
+                    
+    
+                </div>
+                <div class="c_details" style="display: flex;flex-direction: column;">
+                    <div class="c_actions">
+                        <button class="c_button c_detail">查看详情</button>
+                        <button class="c_button c_compare">+加入对比</button>
+                    </div>
+                    <div class="c_footer">
+                        发布时间：2025-01-01 11:12:05
+                    </div>
+                </div>
+    
+    
+            </div>
+        </div>
+
+
+</body>
+
+</html>
+
+
