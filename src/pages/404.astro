@@ -1,0 +1,16 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { withBase } from "../utils/paths";
+---
+
+<BaseLayout title="页面未找到" description="你访问的页面不存在。">
+  <section class="not-found container">
+    <p class="error-code">404</p>
+    <h1>这个页面不存在。</h1>
+    <p>链接可能已经变更，或者页面尚未发布。</p>
+    <div class="hero-actions">
+      <a class="button" href={withBase()}>返回首页</a>
+      <a class="button button-secondary" href={withBase("projects/")}>浏览项目</a>
+    </div>
+  </section>
+</BaseLayout>

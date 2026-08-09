@@ -1,0 +1,48 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { assetUrl, withBase } from "../utils/paths";
+
+interface Props {
+  project: CollectionEntry<"projects">;
+  index?: number;
+}
+
+const { project, index = 0 } = Astro.props;
+const { title, summary, date, type, role, technologies, accent, cover, coverAlt } = project.data;
+const searchText = [title, summary, type, role, ...technologies].join(" ").toLocaleLowerCase("zh-CN");
+const year = date.slice(0, 4);
+---
+
+<article
+  class="project-card"
+  style={`--card-accent: ${accent}`}
+  data-project-card
+  data-search={searchText}
+  data-tags={technologies.join("|")}
+  data-type={type}
+  data-year={year}
+>
+  <a class="project-card-link" href={withBase(`projects/${project.id}/`)} aria-label={`查看项目：${title}`}>
+    {cover ? (
+      <div class="project-visual has-image">
+        <img src={assetUrl(cover)} alt={coverAlt ?? `${title}项目图片`} loading="lazy" />
+      </div>
+    ) : (
+      <div class="project-visual" aria-hidden="true">
+        <span>{String(index + 1).padStart(2, "0")}</span>
+        <div class="visual-grid"></div>
+      </div>
+    )}
+    <div class="project-card-body">
+      <div class="project-meta">
+        <span>{type}</span><span>{date}</span>
+      </div>
+      <h3>{title}</h3>
+      <p>{summary}</p>
+      <div class="tag-list" aria-label="技术栈">
+        {technologies.slice(0, 4).map((technology) => <span class="tag">{technology}</span>)}
+      </div>
+      <span class="card-action">查看详情 <span aria-hidden="true">→</span></span>
+    </div>
+  </a>
+</article>

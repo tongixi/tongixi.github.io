@@ -1,0 +1,23 @@
+---
+interface Props {
+  name: string;
+  contacts: Array<{ label: string; url: string; type: string; enabled: boolean }>;
+}
+
+const { name, contacts } = Astro.props;
+const github = contacts.find((item) => item.type === "github" && item.enabled);
+const year = new Date().getFullYear();
+const updated = new Intl.DateTimeFormat("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+---
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <p>© {year} {name}</p>
+    <p class="footer-meta">
+      <span>最后构建：{updated}</span>
+      <span aria-hidden="true">·</span>
+      <span>Built with Astro</span>
+      {github && <><span aria-hidden="true">·</span><a href={github.url} target="_blank" rel="noreferrer">GitHub</a></>}
+    </p>
+  </div>
+</footer>

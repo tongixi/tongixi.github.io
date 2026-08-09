@@ -1,0 +1,84 @@
+---
+import { withBase } from "../utils/paths";
+
+interface Props {
+  profile: {
+    name: string;
+    initials: string;
+    resume: { enabled: boolean; file: string; label: string };
+  };
+}
+
+const { profile } = Astro.props;
+const home = withBase();
+const resumeHref = withBase(profile.resume.file);
+const sectionHref = (id: string) => `${home}#${id}`;
+---
+
+<header class="site-header" data-site-header>
+  <div class="container header-inner">
+    <a class="brand" href={home} aria-label={`${profile.name}的主页`}>
+      <span class="brand-mark" aria-hidden="true">{profile.initials}</span>
+      <span class="brand-name">{profile.name}</span>
+    </a>
+
+    <button class="menu-toggle icon-button" type="button" aria-label="打开导航" aria-expanded="false" data-menu-toggle>
+      <span></span><span></span>
+    </button>
+
+    <nav class="main-nav" aria-label="主要导航" data-main-nav>
+      <a href={withBase("projects/")}>项目</a>
+      <a href={sectionHref("experience")}>实习</a>
+      <a href={sectionHref("academics")}>学术成果</a>
+      <a href={sectionHref("education")}>教育经历</a>
+      <a href={sectionHref("skills")}>技能</a>
+      <a href={sectionHref("contact")}>联系</a>
+      <button class="theme-toggle icon-button" type="button" aria-label="切换深色模式" aria-pressed="false" data-theme-toggle>
+        <span class="theme-icon theme-icon-sun" aria-hidden="true">☀</span>
+        <span class="theme-icon theme-icon-moon" aria-hidden="true">☾</span>
+      </button>
+      {profile.resume.enabled && (
+        <a class="button button-small" href={resumeHref} download>
+          {profile.resume.label}
+        </a>
+      )}
+    </nav>
+  </div>
+</header>
+
+<script>
+  const root = document.documentElement;
+  const themeButton = document.querySelector<HTMLButtonElement>("[data-theme-toggle]");
+  const menuButton = document.querySelector<HTMLButtonElement>("[data-menu-toggle]");
+  const nav = document.querySelector<HTMLElement>("[data-main-nav]");
+
+  const updateThemeButton = () => {
+    const dark = root.dataset.theme === "dark";
+    themeButton?.setAttribute("aria-pressed", String(dark));
+    themeButton?.setAttribute("aria-label", dark ? "切换浅色模式" : "切换深色模式");
+  };
+
+  updateThemeButton();
+
+  themeButton?.addEventListener("click", () => {
+    const next = root.dataset.theme === "dark" ? "light" : "dark";
+    root.dataset.theme = next;
+    localStorage.setItem("portfolio-theme", next);
+    updateThemeButton();
+  });
+
+  menuButton?.addEventListener("click", () => {
+    const open = menuButton.getAttribute("aria-expanded") === "true";
+    menuButton.setAttribute("aria-expanded", String(!open));
+    menuButton.setAttribute("aria-label", open ? "打开导航" : "关闭导航");
+    nav?.toggleAttribute("data-open", !open);
+  });
+
+  nav?.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => {
+      menuButton?.setAttribute("aria-expanded", "false");
+      menuButton?.setAttribute("aria-label", "打开导航");
+      nav?.removeAttribute("data-open");
+    });
+  });
+</script>

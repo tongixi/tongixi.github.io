@@ -1,0 +1,233 @@
+---
+import { getCollection, render } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import SectionHeading from "../components/SectionHeading.astro";
+import ProjectCard from "../components/ProjectCard.astro";
+import ExternalLinks from "../components/ExternalLinks.astro";
+import { withBase } from "../utils/paths";
+
+const [profiles, projects, academics, awards, education, experience, skillsEntries, news] = await Promise.all([
+  getCollection("profile"),
+  getCollection("projects"),
+  getCollection("academics"),
+  getCollection("awards"),
+  getCollection("education"),
+  getCollection("experience"),
+  getCollection("skills"),
+  getCollection("news"),
+]);
+
+const profile = profiles[0];
+const { Content: ProfileContent } = await render(profile);
+const featuredProjects = projects.filter((item) => item.data.featured).sort((a, b) => a.data.order - b.data.order).slice(0, 3);
+const sortedAcademics = academics.sort((a, b) => a.data.order - b.data.order);
+const sortedAwards = awards.sort((a, b) => a.data.order - b.data.order);
+const educationWithContent = await Promise.all(
+  education.sort((a, b) => a.data.order - b.data.order).map(async (entry) => ({ entry, rendered: await render(entry) })),
+);
+const experienceWithContent = await Promise.all(
+  experience.sort((a, b) => a.data.order - b.data.order).map(async (entry) => ({ entry, rendered: await render(entry) })),
+);
+const skillGroups = skillsEntries[0]?.data.categories ?? [];
+const recentNews = news.sort((a, b) => b.data.date.localeCompare(a.data.date)).slice(0, 4);
+
+const resolveInternalLink = (href?: string) => {
+  if (!href) return undefined;
+  if (href.startsWith("#") || /^https?:\/\//.test(href)) return href;
+  return withBase(href);
+};
+---
+
+<BaseLayout>
+  <section class="hero container">
+    <div class="hero-copy">
+      <p class="eyebrow">冯楠 · 2027 届电子信息硕士</p>
+      <h1>{profile.data.headline}</h1>
+      <p class="hero-summary">{profile.data.summary}</p>
+      <div class="focus-list" aria-label="核心方向">
+        {profile.data.focusAreas.map((area) => <span>{area}</span>)}
+      </div>
+      <div class="hero-actions">
+        <a class="button" href={withBase("projects/")}>浏览项目</a>
+        {profile.data.resume.enabled && (
+          <a class="button button-secondary" href={withBase(profile.data.resume.file)} download>
+            {profile.data.resume.label}
+          </a>
+        )}
+      </div>
+      <ExternalLinks links={profile.data.contacts} compact />
+    </div>
+    <aside class="hero-brief" aria-label="个人概览">
+      <div class="current-role">
+        <div class="brief-label"><span class="status-dot" aria-hidden="true"></span>当前经历</div>
+        <p>2026.05 — 至今</p>
+        <h2>奇瑞汽车</h2>
+        <p>智能驾驶感知算法实习生</p>
+      </div>
+      <div class="brief-grid">
+        <div><strong>吉林大学</strong><span>电子信息硕士 · 推免</span></div>
+        <div><strong>5 项</strong><span>核心软硬件项目</span></div>
+        <div><strong>7 项</strong><span>学术与知识产权成果</span></div>
+        <div><strong>2027 届</strong><span>硕士毕业</span></div>
+      </div>
+      <dl class="identity-list">
+        <div><dt>求职方向</dt><dd>{profile.data.target}</dd></div>
+        <div><dt>个人信息</dt><dd>{profile.data.age}岁 · {profile.data.party}</dd></div>
+        <div><dt>院校</dt><dd>{profile.data.location}</dd></div>
+      </dl>
+    </aside>
+  </section>
+
+  {profile.data.showNews && recentNews.length > 0 && (
+    <section class="news-strip container" aria-labelledby="news-title">
+      <h2 id="news-title">近期动态</h2>
+      <ol>
+        {recentNews.map((item) => (
+          <li>
+            <time datetime={item.data.date}>{item.data.date}</time>
+            <span class="news-type">{item.data.type}</span>
+            {item.data.link ? <a href={resolveInternalLink(item.data.link)}>{item.data.title}</a> : <span>{item.data.title}</span>}
+          </li>
+        ))}
+      </ol>
+    </section>
+  )}
+
+  <section class="section container" id="about">
+    <SectionHeading eyebrow="ABOUT" title="个人简介" />
+    <div class="intro-grid">
+      <div class="prose intro-prose"><ProfileContent /></div>
+      <dl class="quick-facts">
+        <div><dt>方向</dt><dd>{profile.data.target}</dd></div>
+        <div><dt>当前</dt><dd>{profile.data.current}</dd></div>
+        <div><dt>院校</dt><dd>{profile.data.location}</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="section container" id="projects">
+    <SectionHeading
+      eyebrow="SELECTED WORK"
+      title="精选项目"
+      description="覆盖软件Agent、智能硬件、嵌入式物联网、边缘AI和自动驾驶感知的代表性工程实践。"
+      actionHref={withBase("projects/")}
+      actionLabel="查看全部项目"
+    />
+    <div class="project-grid">
+      {featuredProjects.map((project, index) => <ProjectCard project={project} index={index} />)}
+    </div>
+  </section>
+
+  <section class="section section-tinted" id="experience">
+    <div class="container">
+      <SectionHeading eyebrow="EXPERIENCE" title="实习经历" description="智能驾驶感知模型开发、训练验证与国产计算平台适配实践。" />
+      <div class="experience-list">
+        {experienceWithContent.map(({ entry, rendered }) => {
+          const ExperienceContent = rendered.Content;
+          return (
+            <article class="experience-card">
+              <div class="experience-head">
+                <div>
+                  <p class="experience-period">{entry.data.startDate} — {entry.data.endDate}</p>
+                  <h3>{entry.data.company}</h3>
+                  <p class="degree">{entry.data.role}</p>
+                </div>
+                <div class="tag-list">
+                  {entry.data.technologies.map((item) => <span class="tag">{item}</span>)}
+                </div>
+              </div>
+              <p class="experience-summary">{entry.data.summary}</p>
+              <div class="prose compact-prose experience-details"><ExperienceContent /></div>
+            </article>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <section class="section container" id="academics">
+      <SectionHeading eyebrow="ACADEMIC" title="学术成果" description="论文2篇、专利2项、软件著作权1项、大创项目2项，覆盖多光谱感知、微电网、物联网、AI Agent与智能系统。" />
+      <div class="academic-list">
+        {sortedAcademics.map((item) => (
+          <article class="academic-item">
+            <div class="academic-date">{item.data.date}</div>
+            <div>
+              <div class="item-label">{item.data.type}{item.data.status ? ` · ${item.data.status}` : ""}</div>
+              <h3>{item.data.title}</h3>
+              <p class="academic-venue">{item.data.venue}</p>
+              <p>{item.data.summary}</p>
+              {item.data.authors.length > 0 && <p class="authors">{item.data.authors.join(" · ")}</p>}
+              <ExternalLinks links={item.data.links} compact />
+            </div>
+          </article>
+        ))}
+      </div>
+  </section>
+
+  <section class="section section-tinted" id="education">
+    <div class="container">
+    <SectionHeading eyebrow="EDUCATION" title="教育经历" />
+    <div class="timeline">
+      {educationWithContent.map(({ entry, rendered }) => {
+        const EducationContent = rendered.Content;
+        return (
+          <article class="timeline-item">
+            <div class="timeline-marker" aria-hidden="true"></div>
+            <div class="timeline-period">{entry.data.startDate} — {entry.data.endDate}</div>
+            <div class="timeline-content">
+              <h3>{entry.data.school}</h3>
+              <p class="degree">{entry.data.degree} · {entry.data.major}</p>
+              <p class="subtle">{[entry.data.location, entry.data.gpa && `GPA ${entry.data.gpa}`].filter(Boolean).join(" · ")}</p>
+              <div class="prose compact-prose"><EducationContent /></div>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+    </div>
+  </section>
+
+  <section class="section container" id="skills">
+      <SectionHeading eyebrow="SKILLS" title="个人技能" description="按能力领域组织，便于快速了解我的技术与研究工具。" />
+      <div class="skill-grid">
+        {skillGroups.map((group) => (
+          <article class="skill-group">
+            <h3>{group.name}</h3>
+            <div class="tag-list">
+              {group.items.map((item) => <span class="tag tag-large">{item}</span>)}
+            </div>
+          </article>
+        ))}
+      </div>
+  </section>
+
+  <section class="section container" id="awards">
+    <SectionHeading eyebrow="AWARDS" title="获奖经历" />
+    <div class="award-list">
+      {sortedAwards.map((award) => (
+        <article class="award-item">
+          <span class="award-period">{award.data.date}</span>
+          <div>
+            <h3>{award.data.title}</h3>
+            <p>{award.data.issuer}{award.data.level ? ` · ${award.data.level}` : ""}</p>
+            {award.data.description && <p class="subtle">{award.data.description}</p>}
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="section contact-section" id="contact">
+    <div class="container contact-inner">
+      <div>
+        <p class="eyebrow">CONTACT</p>
+        <h2>欢迎与我联系。</h2>
+        <p>期待嵌入式系统、智能硬件、边缘AI与智能驾驶感知方向的工作和技术交流。</p>
+      </div>
+      <div class="contact-actions">
+        <a class="button" href={`mailto:${profile.data.email}`}>发送邮件</a>
+        <ExternalLinks links={profile.data.contacts.filter((item) => item.type !== "email")} compact />
+      </div>
+    </div>
+  </section>
+</BaseLayout>

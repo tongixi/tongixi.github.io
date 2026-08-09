@@ -1,0 +1,111 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ExternalLinks from "../../components/ExternalLinks.astro";
+import { assetUrl, withBase } from "../../utils/paths";
+
+export async function getStaticPaths() {
+  const projects = await getCollection("projects");
+  return projects.map((project) => ({ params: { slug: project.id }, props: { project } }));
+}
+
+interface Props {
+  project: CollectionEntry<"projects">;
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+---
+
+<BaseLayout title={project.data.title} description={project.data.summary}>
+  <article class="project-detail">
+    <header class="project-detail-header container" style={`--card-accent: ${project.data.accent}`}>
+      <a class="back-link" href={withBase("projects/")}><span aria-hidden="true">←</span> 返回项目列表</a>
+      <div class="project-detail-grid">
+        <div>
+          <div class="project-meta detail-meta">
+            <span>{project.data.type}</span><span>{project.data.date}</span><span>{project.data.role}</span>
+          </div>
+          <h1>{project.data.title}</h1>
+          <p class="project-lead">{project.data.summary}</p>
+          <ExternalLinks links={project.data.links} />
+        </div>
+        {project.data.cover ? (
+          <div class="detail-visual has-image">
+            <img src={assetUrl(project.data.cover)} alt={project.data.coverAlt ?? `${project.data.title}项目图片`} />
+          </div>
+        ) : (
+          <div class="detail-visual" aria-hidden="true">
+            <div class="visual-grid"></div>
+            <span>{project.data.technologies.length}</span>
+            <small>TOOLS</small>
+          </div>
+        )}
+      </div>
+      <div class="tag-list detail-tags">
+        {project.data.technologies.map((technology) => <span class="tag tag-large">{technology}</span>)}
+      </div>
+    </header>
+    {project.data.gallery.length > 0 && (
+      <section class="project-gallery container" aria-label="项目图片">
+        {project.data.gallery.map((image) => (
+          <figure>
+            <button
+              class="gallery-trigger"
+              type="button"
+              data-lightbox-trigger
+              data-src={assetUrl(image.src)}
+              data-alt={image.alt}
+              data-caption={image.caption ?? ""}
+              aria-label={`放大查看：${image.alt}`}
+            >
+              <img src={assetUrl(image.src)} alt={image.alt} loading="lazy" />
+            </button>
+            {image.caption && <figcaption>{image.caption}</figcaption>}
+          </figure>
+        ))}
+      </section>
+    )}
+    {project.data.gallery.length > 0 && (
+      <dialog class="project-lightbox" data-lightbox aria-label="项目图片预览">
+        <div class="lightbox-shell">
+          <button class="lightbox-close" type="button" data-lightbox-close aria-label="关闭图片预览">×</button>
+          <img data-lightbox-image alt="" />
+          <p data-lightbox-caption hidden></p>
+        </div>
+      </dialog>
+    )}
+    <div class="container prose project-prose">
+      <Content />
+    </div>
+  </article>
+</BaseLayout>
+
+<script>
+  const lightbox = document.querySelector<HTMLDialogElement>("[data-lightbox]");
+  const lightboxImage = lightbox?.querySelector<HTMLImageElement>("[data-lightbox-image]");
+  const lightboxCaption = lightbox?.querySelector<HTMLParagraphElement>("[data-lightbox-caption]");
+  const closeButton = lightbox?.querySelector<HTMLButtonElement>("[data-lightbox-close]");
+
+  document.querySelectorAll<HTMLButtonElement>("[data-lightbox-trigger]").forEach((trigger) => {
+    trigger.addEventListener("click", () => {
+      if (!lightbox || !lightboxImage || !lightboxCaption) return;
+
+      const source = trigger.dataset.src;
+      if (!source) return;
+
+      lightboxImage.src = source;
+      lightboxImage.alt = trigger.dataset.alt ?? "项目图片";
+
+      const caption = trigger.dataset.caption ?? "";
+      lightboxCaption.textContent = caption;
+      lightboxCaption.hidden = caption.length === 0;
+      lightbox.showModal();
+    });
+  });
+
+  closeButton?.addEventListener("click", () => lightbox?.close());
+  lightbox?.addEventListener("click", (event) => {
+    if (event.target === lightbox) lightbox.close();
+  });
+</script>

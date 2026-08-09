@@ -1,0 +1,112 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ProjectCard from "../../components/ProjectCard.astro";
+import { withBase } from "../../utils/paths";
+
+const projects = (await getCollection("projects")).sort((a, b) => a.data.order - b.data.order);
+const tags = [...new Set(projects.flatMap((project) => project.data.technologies))].sort((a, b) => a.localeCompare(b));
+const types = [...new Set(projects.map((project) => project.data.type))].sort((a, b) => a.localeCompare(b));
+---
+
+<BaseLayout title="项目" description="项目列表、技术实践与完整案例介绍。">
+  <section class="page-hero container">
+    <a class="back-link" href={withBase()}><span aria-hidden="true">←</span> 返回首页</a>
+    <p class="eyebrow">PROJECTS</p>
+    <h1>项目与实践</h1>
+    <p>搜索项目名称、简介或技术栈，也可以使用标签快速筛选。</p>
+  </section>
+
+  <section class="container project-browser" aria-labelledby="filter-title">
+    <h2 class="sr-only" id="filter-title">筛选项目</h2>
+    <div class="filter-panel">
+      <label class="search-field">
+        <span>搜索</span>
+        <input type="search" placeholder="搜索项目、技术或职责…" autocomplete="off" data-project-search />
+      </label>
+      <label>
+        <span>技术标签</span>
+        <select data-tag-filter>
+          <option value="">全部技术</option>
+          {tags.map((tag) => <option value={tag}>{tag}</option>)}
+        </select>
+      </label>
+      <label>
+        <span>项目类型</span>
+        <select data-type-filter>
+          <option value="">全部类型</option>
+          {types.map((type) => <option value={type}>{type}</option>)}
+        </select>
+      </label>
+      <button class="button button-secondary filter-clear" type="button" data-filter-clear>清除条件</button>
+    </div>
+
+    <div class="result-summary" aria-live="polite" data-result-summary>共 {projects.length} 个项目</div>
+
+    <div class="project-grid project-grid-browser" data-project-grid>
+      {projects.map((project, index) => <ProjectCard project={project} index={index} />)}
+    </div>
+
+    <div class="empty-state" hidden data-empty-state>
+      <p>没有找到匹配的项目。</p>
+      <button class="text-link" type="button" data-empty-clear>清除筛选条件</button>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const searchInput = document.querySelector<HTMLInputElement>("[data-project-search]");
+  const tagSelect = document.querySelector<HTMLSelectElement>("[data-tag-filter]");
+  const typeSelect = document.querySelector<HTMLSelectElement>("[data-type-filter]");
+  const clearButtons = document.querySelectorAll<HTMLButtonElement>("[data-filter-clear], [data-empty-clear]");
+  const cards = [...document.querySelectorAll<HTMLElement>("[data-project-card]")];
+  const summary = document.querySelector<HTMLElement>("[data-result-summary]");
+  const empty = document.querySelector<HTMLElement>("[data-empty-state]");
+
+  const normalize = (value: string) => value.trim().toLocaleLowerCase("zh-CN");
+
+  const applyFilters = () => {
+    const query = normalize(searchInput?.value ?? "");
+    const tag = tagSelect?.value ?? "";
+    const type = typeSelect?.value ?? "";
+    let visible = 0;
+
+    cards.forEach((card) => {
+      const search = card.dataset.search ?? "";
+      const tags = (card.dataset.tags ?? "").split("|");
+      const cardType = card.dataset.type ?? "";
+      const matches = (!query || search.includes(query)) && (!tag || tags.includes(tag)) && (!type || cardType === type);
+      card.hidden = !matches;
+      if (matches) visible += 1;
+    });
+
+    if (summary) summary.textContent = `找到 ${visible} 个项目`;
+    if (empty) empty.hidden = visible !== 0;
+
+    const params = new URLSearchParams();
+    if (query) params.set("q", searchInput?.value.trim() ?? "");
+    if (tag) params.set("tag", tag);
+    if (type) params.set("type", type);
+    const suffix = params.toString();
+    history.replaceState(null, "", `${location.pathname}${suffix ? `?${suffix}` : ""}`);
+  };
+
+  const clearFilters = () => {
+    if (searchInput) searchInput.value = "";
+    if (tagSelect) tagSelect.value = "";
+    if (typeSelect) typeSelect.value = "";
+    applyFilters();
+    searchInput?.focus();
+  };
+
+  const initial = new URLSearchParams(location.search);
+  if (searchInput) searchInput.value = initial.get("q") ?? "";
+  if (tagSelect) tagSelect.value = initial.get("tag") ?? "";
+  if (typeSelect) typeSelect.value = initial.get("type") ?? "";
+
+  searchInput?.addEventListener("input", applyFilters);
+  tagSelect?.addEventListener("change", applyFilters);
+  typeSelect?.addEventListener("change", applyFilters);
+  clearButtons.forEach((button) => button.addEventListener("click", clearFilters));
+  applyFilters();
+</script>

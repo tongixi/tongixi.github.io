@@ -1,0 +1,25 @@
+---
+interface Props {
+  links: Array<{ label: string; url: string; type: string; enabled: boolean }>;
+  compact?: boolean;
+}
+const { links, compact = false } = Astro.props;
+const visibleLinks = links.filter((link) => link.enabled);
+const isExternal = (url: string) => /^https?:\/\//.test(url);
+---
+
+{visibleLinks.length > 0 && (
+  <div class:list={["external-links", { compact }]}>
+    {visibleLinks.map((link) => (
+      <a
+        class="external-link"
+        href={link.url}
+        target={isExternal(link.url) ? "_blank" : undefined}
+        rel={isExternal(link.url) ? "noreferrer" : undefined}
+      >
+        <span>{link.label}</span>
+        <span aria-hidden="true">↗</span>
+      </a>
+    ))}
+  </div>
+)}
