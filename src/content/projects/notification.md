@@ -2,7 +2,7 @@
 title: 简单通知
 summary: 基于 Kotlin 和 TCP 协议开发的 Android 独立通知助手，通过巴法云 TCP 协议订阅 Topic，实现数据变化时的系统通知推送与本地历史管理。
 date: 2026.07 - 2026.08
-type: 软件
+type: 软件系统
 role: Android 独立开发
 technologies: [Kotlin, TCP, SQLite, Android]
 featured: true
